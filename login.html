@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Signup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            background-image: url('loginbackground.png'); /* Specify your image path */
+            background-size: cover;
+            background-position: center;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background for better readability */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center; /* Center content horizontally */
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .toggle-link {
+            margin-top: 10px;
+            cursor: pointer;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <h2 id="form-title">Login</h2>
+        <div class="input-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" required>
+        </div>
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" required>
+        </div>
+        <button class="button" id="submit-btn">Login</button>
+        <div class="toggle-link" id="toggle-link">Don't have an account? Sign Up</div>
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+        const formTitle = document.getElementById('form-title');
+        const submitBtn = document.getElementById('submit-btn');
+        const toggleLink = document.getElementById('toggle-link');
+        let isLogin = true;
+
+        toggleLink.addEventListener('click', () => {
+            isLogin = !isLogin;
+            if (isLogin) {
+                formTitle.innerText = 'Login';
+                submitBtn.innerText = 'Login';
+                toggleLink.innerText = "Don't have an account? Sign Up";
+            } else {
+                formTitle.innerText = 'Sign Up';
+                submitBtn.innerText = 'Sign Up';
+                toggleLink.innerText = 'Already have an account? Login';
+            }
+        });
+
+        submitBtn.addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (isLogin) {
+                login(email, password);
+            } else {
+                signUp(email, password);
+            }
+        });
+
+        function signUp(email, password) {
+            if (localStorage.getItem(email)) {
+                alert('User already exists!');
+            } else {
+                localStorage.setItem(email, password);
+                alert('Signup successful! Please login.');
+                redirectToIndex();
+            }
+        }
+
+        function login(email, password) {
+            const storedPassword = localStorage.getItem(email);
+            if (storedPassword && storedPassword === password) {
+                alert('Login successful!');
+                redirectToIndex();
+            } else {
+                alert('Invalid email or password.');
+            }
+        }
+
+        function redirectToIndex() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

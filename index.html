@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/utility.css">
+    <link rel="icon" type="image/png" href="logo2.png"/>
+    <title>Rhythm - Web Player: Music for everyone</title>
+    <style>
+        /* Additional styles for microphone button */
+        .mic-button {
+            margin-left: 10px; /* Adjust as needed */
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container flex bg-black">
+        <div class="left">
+            <div class="close">
+                <img width="30" class="invert" src="close.svg" alt="">
+            </div>
+            <div class="home bg-grey rounded m-1 p-1">
+                <div class="logo"><img width="110" class="invert" src="logo1.png" alt=""></div>
+                <ul>
+                    <li id="searchwalla">
+                        <img class="invert" src="search.svg" alt="search" id="searchIcon"> Search
+                    </li>
+                    <input type="text" id="searchInput" placeholder="Search for songs..." style="display: none;">
+                    <button id="searchButton" style="display: none;">Search</button>
+                    <!-- Microphone button -->
+                    <img class="mic-button" src="mic.png" alt="Microphone" id="micButton" style="display: none;">
+                </ul>
+            </div>
+
+            <div class="library bg-grey rounded m-1 p-1">
+                <div class="heading">
+                    <img class="invert" src="playlist.svg" alt="">
+                    <h2>Your Library</h2>
+                </div>
+
+                <div class="songList">
+                    <ul>helo</ul>
+                </div>
+
+                <div class="footer">
+                    <div><a href="https://github.com/vivekmertia"><span>GitHub</span></a></div>
+                    <div><a href="https://www.instagram.com/vivek_singh_mertiya_rathore?igsh=MWwxMnpxcGZydWRwdg=="><span>Instagram</span></a></div>
+                    <div><a href="https://twitter.com/vivekmertia"><span>Twitter</span></a></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right bg-grey rounded">
+            <div class="header">
+                <div class="nav">
+                    <div class="hamburgerContainer">
+                        <img width="40" class="invert hamburger" src="hamburger.svg" alt="">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 6L9.70711 11.2929C9.37377 11.6262 9.20711 11.7929 9.20711 12C9.20711 12.2071 9.37377 12.3738 9.70711 12.7071L15 18"
+                                  stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 18L14.2929 12.7071C14.6262 12.3738 14.7929 12.2071 14.7929 12C14.7929 11.7929 14.6262 11.6262 14.2929 11.2929L9 6"
+                                  stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="buttons">
+                    <a href="login.html"><button class="signupbtn">Sign up</button></a>
+                    <a href="login.html"><button class="signupbtn">Login</button></a>
+                </div>
+            </div>
+
+            <div class="spotifyPlaylists">
+                <h1>Rhythm Playlists</h1>
+                <div class="cardContainer"></div>
+                
+                <div class="playbar">
+                    <div class="seekbar">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="abovebar">
+                        <div class="songinfo"></div>
+                        <div class="songbuttons">
+                            <img width="35" id="previous" src="prevsong.svg" alt="">
+                            <img width="35" id="play" src="play.svg" alt="">
+                            <img width="35" id="next" src="nextsong.svg" alt="">
+                            <img width="35" id="like" src="like.png" alt="Like" class="liked">
+                            <img width="35" id="dislike" src="dislike.png" alt="Dislike">
+                            
+                        </div>
+                        <div class="timevol">
+                            <div class="songtime"></div>
+                            <div class="volume">
+                                <img width="25" src="volume.svg" alt="">
+                                <div class="range">
+                                    <input type="range" name="volume" id="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Playlist creation modal -->
+    <div id="playlistModal" style="display: none;">
+        <div class="modal-content">
+            <span id="closePlaylistModalButton" class="close-button">&times;</span>
+            <h2>Create New Playlist</h2>
+            <input type="text" id="playlistNameInput" placeholder="Playlist Name">
+            <button id="savePlaylistButton">Save</button>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Your JavaScript code here (including the integrated speech recognition functionality)
+        console.log('lets write JavaScript');
+        let currentSong = new Audio();
+        let songs;
+        let currFolder;
+
+        // Converts seconds to MM:SS format
+        function secondsToMinutesAndSeconds(seconds) {
+            if (isNaN(seconds) || seconds < 0) {
+                return "00:00";
+            }
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+            return `${formattedMinutes}:${formattedSeconds}`;
+        }
+
+        // Fetches songs from the server
+        async function getSongs(folder) {
+            currFolder = folder;
+            let a = await fetch(`http://127.0.0.1:5501/${folder}/`);
+            let response = await a.text();
+            let div = document.createElement("div");
+            div.innerHTML = response;
+            let as = div.getElementsByTagName("a");
+            songs = [];
+            for (let index = 0; index < as.length; index++) {
+                const element = as[index];
+                if (element.href.endsWith(".mp3")) {
+                    songs.push(element.href.split(`/${folder}/`)[1]);
+                }
+            }
+            displaySongs(songs);
+        }
+
+        // Displays songs in the song list
+        function displaySongs(songs) {
+            let songUL = document.querySelector(".songList ul");
+            songUL.innerHTML = "";
+            for (const song of songs) {
+                songUL.innerHTML += `<li><img class="invert" src="music.svg" alt="">
+                <div class="info">
+                    <div> ${song.replaceAll("%20", " ")}</div>
+                    <div>Mukesh, Vivek & Yashika</div>
+                </div>
+                <div class="playnow">
+                    <span>Play Now</span>
+                <img class="invert" src="play.svg" alt="">
+            </div> </li>`;
+            }
+
+            // Attach event listener to each song
+            Array.from(document.querySelector(".songList").getElementsByTagName("li")).forEach(e => {
+                e.addEventListener("click", element => {
+                    playMusic(e.querySelector(".info").firstElementChild.innerHTML.trim());
+                });
+            });
+        }
+
+        const playMusic = (track, pause = false) => {
+            currentSong.src = `/${currFolder}/` + track;
+            if (!pause) {
+                currentSong.play();
+                play.src = "pause.svg";
+            }
+            document.querySelector(".songinfo").innerHTML = track.replaceAll("%20", " ");
+            currentSong.onended = () => {
+                document.querySelector(".songinfo").innerHTML = "";
+                play.src = "play.svg";
+            }
+        }
+
+        // Dynamically searches for songs
+        const searchSongs = async query => {
+            let filteredSongs = songs.filter((e, i, arr) => e.toLowerCase().includes(query.toLowerCase()));
+            displaySongs(filteredSongs);
+        };
+
+        // Loads home content
+        const loadHomeContent = () => {
+            document.querySelector(".songinfo").innerHTML = "Home";
+        }
+
+        // Adds custom playlist
+        const addCustomPlaylist = playlistName => {
+            let ul = document.createElement("ul");
+            let li = document.createElement("li");
+            li.innerText = playlistName;
+            ul.appendChild(li);
+            document.body.appendChild(ul);
+        }
+
+        // Main function to initialize the application
+        const main = () => {
+            document.getElementById("searchInput").focus();
+            getSongs("songs");
+        };
+
+        // Start Speech Recognition functionality
+        const startSpeechRecognition = () => {
+            const recognition = new webkitSpeechRecognition(); // Create speech recognition object
+            recognition.continuous = false; // Set continuous to false to stop recognition after the first result is returned
+            recognition.lang = 'en-US'; // Set recognition language to US English
+
+            // Start recognition on button click
+            document.getElementById('micButton').addEventListener('click', function () {
+                recognition.start();
+                console.log('Recognition started');
+            });
+
+            // This event is called when the speech recognition service returns a result
+            recognition.onresult = function (event) {
+                const speechResult = event.results[0][0].transcript.trim(); // Get transcript of speech input
+                console.log('Speech input:', speechResult);
+                document.getElementById('searchInput').value = speechResult; // Set search input field value to speech input
+                searchSongs(speechResult); // Call searchSongs function with speech input
+            };
+
+            // This event is called when an error occurs during recognition
+            recognition.onerror = function (event) {
+                console.error('Speech recognition error:', event.error);
+            };
+        };
+
+        // Call the main function to start the application
+        main();
+    </script>
+</body>
+
+</html>
